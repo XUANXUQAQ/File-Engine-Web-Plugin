@@ -16,7 +16,7 @@ public class SettingsFrame {
     private JButton buttonSave;
     private JPanel panel;
     private JLabel labelTip2;
-    private String url = "https://www.baidu.com/s?wd=%s";   //todo 默认百度
+    private String url = "https://www.baidu.com/s?wd=%s";
     private final JFrame frame = new JFrame("设置");
 
     private static class SettingsFrameBuilder {

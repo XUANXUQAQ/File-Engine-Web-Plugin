@@ -27,6 +27,7 @@ public class PluginMain extends Plugin {
     private boolean isRunning = false;
     public static final String settingsFolderPath = "plugins/Plugin configuration files/Web";
     public static final String settingsJsonPath = settingsFolderPath + File.separator + "settings.json";
+    private final ImageIcon icon = new ImageIcon(this.getClass().getResource("/icon.png"));
 
 
     /**
@@ -210,8 +211,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getOfficialSite() {
-        //todo 添加官方网站
-        return "";
+        return "https://github.com/XUANXUQAQ/File-Engine-Web-Plugin";
     }
 
     /**
@@ -220,7 +220,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getVersion() {
-        return VersionCheckUtil.version;
+        return VersionCheckUtil._getPluginVersion();
     }
 
     /**
@@ -230,7 +230,13 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getDescription() {
-        return null;
+        return "一个快速搜索互联网的插件\n" +
+                "用法：\n" +
+                ">web 你想搜索的关键字" + "\n\n"
+                + "English instruction\n" +
+                "A plugin to search the Internet quickly\n" +
+                "usage:\n" +
+                ">web The keyword you want to search";
     }
 
     /**
@@ -240,7 +246,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public boolean isLatest() throws Exception {
-        return VersionCheckUtil.isLatest();
+        return VersionCheckUtil._isLatest();
     }
 
     /**
@@ -251,7 +257,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getUpdateURL() {
-        return VersionCheckUtil.getUpdateUrl();
+        return VersionCheckUtil._getUpdateURL();
     }
 
     /**
@@ -270,7 +276,7 @@ public class PluginMain extends Plugin {
         }
         label.setBorder(border);
         label.setText(result);
-        //todo label显示图标
+        label.setIcon(icon);
     }
 
     @Override
