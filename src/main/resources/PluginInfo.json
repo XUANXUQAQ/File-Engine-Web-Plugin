@@ -1,5 +1,5 @@
 {
-  "className" : "FileEngine.Example.Plugin.PluginMain",
-  "identifier" : "example",
-  "name" : "ExamplePlugin"
+  "className" : "FileEngine.Web.Plugin.PluginMain",
+  "identifier" : "web",
+  "name" : "Web"
 }

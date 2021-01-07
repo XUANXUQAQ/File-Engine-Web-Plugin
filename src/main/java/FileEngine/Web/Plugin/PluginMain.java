@@ -1,10 +1,33 @@
-package FileEngine.Example.Plugin;
+package FileEngine.Web.Plugin;
+
+import FileEngine.Web.Plugin.checkVersion.VersionCheckUtil;
+import FileEngine.Web.Plugin.searchWeb.SearchWebUtil;
+import FileEngine.Web.Plugin.settings.SettingsFrame;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.*;
 
 public class PluginMain extends Plugin {
+    private final ExecutorService threadPool = new ThreadPoolExecutor(
+            0, 50,
+            60L, TimeUnit.SECONDS,
+            new SynchronousQueue<>());
+    private Border border;
+    private Color labelColor;
+    private Color backgroundColor;
+    private String searchText;
+    private long startTime;
+    private boolean isStart = false;
+    private boolean isRunning = false;
+    public static final String settingsFolderPath = "plugins/Plugin configuration files/Web";
+    public static final String settingsJsonPath = settingsFolderPath + File.separator + "settings.json";
+
 
     /**
      * Do Not Remove, this is used for File-Engine to get message from the plugin.
@@ -55,7 +78,9 @@ public class PluginMain extends Plugin {
      * @param choseLabelColor This is the color's RGB code. When the label is chosen, it will be shown as this color.
      */
     public void setCurrentTheme(int defaultColor, int choseLabelColor, int borderColor) {
-
+        backgroundColor = new Color(defaultColor);
+        labelColor = new Color(choseLabelColor);
+        border = BorderFactory.createLineBorder(new Color(borderColor));
     }
 
     /**
@@ -65,7 +90,13 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void textChanged(String text) {
-
+        if (">set".equals(text)) {
+            SettingsFrame.getInstance().showWindow();
+        }else {
+            searchText = text;
+            isStart = true;
+            startTime = System.currentTimeMillis();
+        }
     }
 
     /**
@@ -74,7 +105,30 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void loadPlugin() {
+        isRunning = true;
+        File settingsDir = new File(settingsFolderPath);
+        boolean isSuccess;
+        if (!settingsDir.exists()) {
+            isSuccess = settingsDir.mkdirs();
+            checkSuccess(isSuccess);
+        }
+        File settingsJson  = new File(settingsJsonPath);
+        if (!settingsJson.exists()) {
+            try {
+                isSuccess = settingsJson.createNewFile();
+                checkSuccess(isSuccess);
+            } catch (IOException ignored) {
+            }
+        }
+        SettingsFrame.getInstance().readAllSettings();
+        initThreadPool();
+    }
 
+    private void checkSuccess(boolean b) {
+        if (!b) {
+            System.err.println("Web plugin initialize failed.");
+            isRunning = false;
+        }
     }
 
     /**
@@ -82,7 +136,8 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void unloadPlugin() {
-
+        isRunning = false;
+        threadPool.shutdownNow();
     }
 
     /**
@@ -93,7 +148,6 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void keyReleased(KeyEvent e, String result) {
-
     }
 
     /**
@@ -104,7 +158,9 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void keyPressed(KeyEvent e, String result) {
-
+        if (e.getKeyCode() == 13) {
+            SearchWebUtil.searchWeb(searchText);
+        }
     }
 
     /**
@@ -115,7 +171,6 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void keyTyped(KeyEvent e, String result) {
-
     }
 
     /**
@@ -125,7 +180,9 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void mousePressed(MouseEvent e, String result) {
-
+        if (e.getClickCount() == 2) {
+            SearchWebUtil.searchWeb(searchText);
+        }
     }
 
     /**
@@ -135,7 +192,6 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void mouseReleased(MouseEvent e, String result) {
-
     }
 
     /**
@@ -154,7 +210,8 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getOfficialSite() {
-        return null;
+        //todo 添加官方网站
+        return "";
     }
 
     /**
@@ -163,7 +220,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getVersion() {
-        return null;
+        return VersionCheckUtil.version;
     }
 
     /**
@@ -182,8 +239,8 @@ public class PluginMain extends Plugin {
      * @see #getUpdateURL()
      */
     @Override
-    public boolean isLatest() {
-        return false;
+    public boolean isLatest() throws Exception {
+        return VersionCheckUtil.isLatest();
     }
 
     /**
@@ -194,7 +251,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getUpdateURL() {
-        return null;
+        return VersionCheckUtil.getUpdateUrl();
     }
 
     /**
@@ -206,11 +263,36 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void showResultOnLabel(String result, JLabel label, boolean isChosen) {
-
+        if (isChosen) {
+            label.setBackground(labelColor);
+        }else {
+            label.setBackground(backgroundColor);
+        }
+        label.setBorder(border);
+        label.setText(result);
+        //todo label显示图标
     }
 
     @Override
     public String getAuthor() {
-        return null;
+        return "XUANXU";
+    }
+
+    private void initThreadPool(){
+        threadPool.execute(() -> {
+            try {
+                long endTime;
+                while (isRunning) {
+                    endTime = System.currentTimeMillis();
+                    if ((endTime - startTime) > 500 && isStart) {
+                        isStart = false;
+                        String result = "搜索:" + searchText;
+                        addToResultQueue(result);
+                    }
+                    TimeUnit.MILLISECONDS.sleep(50);
+                }
+            }catch (InterruptedException ignored) {
+            }
+        });
     }
 }
