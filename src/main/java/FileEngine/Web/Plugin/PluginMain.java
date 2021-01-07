@@ -148,8 +148,7 @@ public class PluginMain extends Plugin {
      * @param result Currently selected content.
      */
     @Override
-    public void keyReleased(KeyEvent e, String result) {
-    }
+    public void keyReleased(KeyEvent e, String result) {}
 
     /**
      * Invoked when a key has been pressed. See the class description for the swing KeyEvent for a definition of a key pressed event.
@@ -159,7 +158,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public void keyPressed(KeyEvent e, String result) {
-        if (e.getKeyCode() == 13) {
+        if (e.getKeyCode() == 10) {
             SearchWebUtil.searchWeb(searchText);
         }
     }
@@ -171,8 +170,7 @@ public class PluginMain extends Plugin {
      * @param result Currently selected content.
      */
     @Override
-    public void keyTyped(KeyEvent e, String result) {
-    }
+    public void keyTyped(KeyEvent e, String result) {}
 
     /**
      * Invoked when a mouse button has been pressed on a component.
@@ -192,8 +190,7 @@ public class PluginMain extends Plugin {
      * @param result Currently selected content
      */
     @Override
-    public void mouseReleased(MouseEvent e, String result) {
-    }
+    public void mouseReleased(MouseEvent e, String result) {}
 
     /**
      * Get the plugin Icon. It can be the png, jpg.
@@ -202,7 +199,7 @@ public class PluginMain extends Plugin {
      */
     @Override
     public ImageIcon getPluginIcon() {
-        return null;
+        return icon;
     }
 
     /**
