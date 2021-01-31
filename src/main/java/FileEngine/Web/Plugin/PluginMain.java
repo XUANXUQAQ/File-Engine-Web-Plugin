@@ -18,7 +18,6 @@ public class PluginMain extends Plugin {
             0, 50,
             60L, TimeUnit.SECONDS,
             new SynchronousQueue<>());
-    private Border border;
     private Color labelColor;
     private Color backgroundColor;
     private String searchText;
@@ -81,7 +80,6 @@ public class PluginMain extends Plugin {
     public void setCurrentTheme(int defaultColor, int choseLabelColor, int borderColor) {
         backgroundColor = new Color(defaultColor);
         labelColor = new Color(choseLabelColor);
-        border = BorderFactory.createLineBorder(new Color(borderColor));
     }
 
     /**
@@ -271,7 +269,6 @@ public class PluginMain extends Plugin {
         }else {
             label.setBackground(backgroundColor);
         }
-        label.setBorder(border);
         label.setText(result);
         label.setIcon(icon);
     }
@@ -287,7 +284,7 @@ public class PluginMain extends Plugin {
                 long endTime;
                 while (isRunning) {
                     endTime = System.currentTimeMillis();
-                    if ((endTime - startTime) > 500 && isStart) {
+                    if ((endTime - startTime) > 300 && isStart) {
                         isStart = false;
                         String result = "搜索:" + searchText;
                         addToResultQueue(result);
