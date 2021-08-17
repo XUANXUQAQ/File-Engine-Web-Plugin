@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class SearchWebUtil {
 
     public static void searchWeb(String text) {
         try {
-            text = URLEncoder.encode(text, "UTF-8");
+            text = URLEncoder.encode(text, StandardCharsets.UTF_8);
             String url = SettingsFrame.getInstance().getUrl().replaceAll("%s", text);
             Desktop desktop;
             if (Desktop.isDesktopSupported()) {

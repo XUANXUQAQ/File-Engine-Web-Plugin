@@ -3,15 +3,20 @@ package FileEngine.Web.Plugin;
 import FileEngine.Web.Plugin.checkVersion.VersionCheckUtil;
 import FileEngine.Web.Plugin.searchWeb.SearchWebUtil;
 import FileEngine.Web.Plugin.settings.SettingsFrame;
+import FileEngine.Web.Plugin.suggestion.SuggestionUtil;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class PluginMain extends Plugin {
     private final ExecutorService threadPool = new ThreadPoolExecutor(
@@ -26,7 +31,7 @@ public class PluginMain extends Plugin {
     private boolean isRunning = false;
     public static final String settingsFolderPath = "plugins/Plugin configuration files/Web";
     public static final String settingsJsonPath = settingsFolderPath + File.separator + "settings.json";
-    private final ImageIcon icon = new ImageIcon(this.getClass().getResource("/icon.png"));
+    private final ImageIcon icon = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/icon.png")));
 
 
     /**
@@ -157,7 +162,7 @@ public class PluginMain extends Plugin {
     @Override
     public void keyPressed(KeyEvent e, String result) {
         if (e.getKeyCode() == 10) {
-            SearchWebUtil.searchWeb(searchText);
+            SearchWebUtil.searchWeb(result);
         }
     }
 
@@ -178,7 +183,7 @@ public class PluginMain extends Plugin {
     @Override
     public void mousePressed(MouseEvent e, String result) {
         if (e.getClickCount() == 2) {
-            SearchWebUtil.searchWeb(searchText);
+            SearchWebUtil.searchWeb(result);
         }
     }
 
@@ -278,20 +283,38 @@ public class PluginMain extends Plugin {
         return "XUANXU";
     }
 
+    private void addSuggestions() {
+        threadPool.submit(() -> {
+            try {
+                long startAddingTime = System.currentTimeMillis();
+                ArrayList<String> suggestions = SuggestionUtil.getSuggestions(searchText);
+                for (String suggestion : suggestions) {
+                    if (isStart || startTime > startAddingTime) {
+                        break;
+                    }
+                    addToResultQueue(suggestion);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     private void initThreadPool(){
-        threadPool.execute(() -> {
+        threadPool.submit(() -> {
             try {
                 long endTime;
                 while (isRunning) {
                     endTime = System.currentTimeMillis();
                     if ((endTime - startTime) > 300 && isStart) {
                         isStart = false;
-                        String result = "搜索:" + searchText;
-                        addToResultQueue(result);
+                        addToResultQueue(searchText);
+                        addSuggestions();
                     }
                     TimeUnit.MILLISECONDS.sleep(50);
                 }
-            }catch (InterruptedException ignored) {
+            }catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
     }
