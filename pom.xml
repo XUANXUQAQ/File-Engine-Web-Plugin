@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>ExamplePlugin</artifactId>
+    <groupId>file.engine</groupId>
+    <artifactId>WebPlugin</artifactId>
     <version>1.0</version>
     <build>
         <plugins>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.73</version>
+            <version>1.2.76</version>
         </dependency>
 
     </dependencies>
