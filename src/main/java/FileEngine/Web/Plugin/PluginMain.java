@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -82,9 +83,10 @@ public class PluginMain extends Plugin {
      * @param defaultColor This is the color's RGB code. When the label isn't chosen, it will be shown as this color.
      * @param choseLabelColor This is the color's RGB code. When the label is chosen, it will be shown as this color.
      */
+    @Deprecated
+    @Override
     public void setCurrentTheme(int defaultColor, int choseLabelColor, int borderColor) {
-        backgroundColor = new Color(defaultColor);
-        labelColor = new Color(choseLabelColor);
+
     }
 
     /**
@@ -103,12 +105,10 @@ public class PluginMain extends Plugin {
         }
     }
 
-    /**
-     * When File-Engine is starting, the function will be called.
-     * You can initialize your plugin here
-     */
     @Override
-    public void loadPlugin() {
+    public void loadPlugin(Map<String, Object> configs) {
+        backgroundColor = new Color((Integer) configs.get("defaultBackground"));
+        labelColor = new Color((Integer) configs.get("labelColor"));
         isRunning = true;
         File settingsDir = new File(settingsFolderPath);
         boolean isSuccess;
@@ -126,6 +126,16 @@ public class PluginMain extends Plugin {
         }
         SettingsFrame.getInstance().readAllSettings();
         initThreadPool();
+    }
+
+    /**
+     * When File-Engine is starting, the function will be called.
+     * You can initialize your plugin here
+     */
+    @Override
+    @Deprecated
+    public void loadPlugin() {
+
     }
 
     private void checkSuccess(boolean b) {
@@ -237,6 +247,11 @@ public class PluginMain extends Plugin {
                 "A plugin to search the Internet quickly\n" +
                 "usage:\n" +
                 ">web The keyword you want to search";
+    }
+
+    @Override
+    public void searchBarVisible(String showingMode) {
+        System.out.println("当前显示模式" + showingMode);
     }
 
     /**
