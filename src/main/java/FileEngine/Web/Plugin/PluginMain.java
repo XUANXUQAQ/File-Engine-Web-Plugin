@@ -89,6 +89,12 @@ public class PluginMain extends Plugin {
 
     }
 
+    @Override
+    public void configsChanged(Map<String, Object> configs) {
+        backgroundColor = new Color((Integer) configs.get("defaultBackground"));
+        labelColor = new Color((Integer) configs.get("labelColor"));
+    }
+
     /**
      * When the search bar textChanged, this function will be called.
      * @param text
