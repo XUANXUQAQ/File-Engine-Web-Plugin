@@ -246,13 +246,15 @@ public class PluginMain extends Plugin {
      */
     @Override
     public String getDescription() {
-        return "一个快速搜索互联网的插件\n" +
-                "用法：\n" +
-                ">web 你想搜索的关键字" + "\n\n"
-                + "English instruction\n" +
-                "A plugin to search the Internet quickly\n" +
-                "usage:\n" +
-                ">web The keyword you want to search";
+        return """
+                一个快速搜索互联网的插件
+                用法：
+                >web 你想搜索的关键字
+
+                English instruction
+                A plugin to search the Internet quickly
+                usage:
+                >web The keyword you want to search""";
     }
 
     @Override
