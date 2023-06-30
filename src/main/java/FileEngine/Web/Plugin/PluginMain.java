@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 public class PluginMain extends Plugin {
     private final ExecutorService threadPool = new ThreadPoolExecutor(
@@ -34,65 +35,14 @@ public class PluginMain extends Plugin {
     public static final String settingsJsonPath = settingsFolderPath + File.separator + "settings.json";
     private final ImageIcon icon = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/icon.png")));
 
-
-    /**
-     * Do Not Remove, this is used for File-Engine to get message from the plugin.
-     * You can show message using "displayMessage(String caption, String message)"
-     * @return String[2], the first string is caption, the second string is message.
-     * @see #displayMessage(String, String)
-     */
-    public String[] getMessage() {
-        return _getMessage();
-    }
-
-    /**
-     * Do Not Remove, this is used for File-Engine to get results from the plugin
-     * You can add result using "addToResultQueue(String result)".
-     * @see #addToResultQueue(String)
-     * @return result
-     */
-    public String pollFromResultQueue() {
-        return _pollFromResultQueue();
-    }
-
-    /**
-     * Do Not Remove, this is used for File-Engine to check the API version.
-     * @return Api version
-     */
-    public int getApiVersion() {
-        return _getApiVersion();
-    }
-
-    /**
-     * Do Not Remove, this is used for File-Engine to clear results to prepare for the next time.
-     * @see #addToResultQueue(String)
-     * @see #pollFromResultQueue()
-     */
-    public void clearResultQueue() {
-        _clearResultQueue();
-    }
-
-    /**
-     * This is used for File-Engine to tell the plugin the current Theme settings.
-     * This function will be called when the plugin is being loaded.
-     * You can use them on method showResultOnLabel(String, JLabel, boolean).
-     * When the label is chosen by user, you could set the label background as chosenLabelColor.
-     * When the label isn't chosen by user, you could set the label background as defaultColor.
-     * You can save the color and use it at function showResultOnLabel(String, JLabel, boolean)
-     * @see #showResultOnLabel(String, JLabel, boolean)
-     * @param defaultColor This is the color's RGB code. When the label isn't chosen, it will be shown as this color.
-     * @param choseLabelColor This is the color's RGB code. When the label is chosen, it will be shown as this color.
-     */
-    @Deprecated
-    @Override
-    public void setCurrentTheme(int defaultColor, int choseLabelColor, int borderColor) {
-
-    }
-
     @Override
     public void configsChanged(Map<String, Object> configs) {
         backgroundColor = new Color((Integer) configs.get("defaultBackground"));
         labelColor = new Color((Integer) configs.get("labelColor"));
+    }
+
+    @Override
+    public void eventProcessed(Class<?> c, Object eventInstance) {
     }
 
     /**
@@ -113,6 +63,11 @@ public class PluginMain extends Plugin {
 
     @Override
     public void loadPlugin(Map<String, Object> configs) {
+        try {
+            VersionCheckUtil.registerDownloadListener();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         backgroundColor = new Color((Integer) configs.get("defaultBackground"));
         labelColor = new Color((Integer) configs.get("labelColor"));
         isRunning = true;
@@ -132,16 +87,6 @@ public class PluginMain extends Plugin {
         }
         SettingsFrame.getInstance().readAllSettings();
         initThreadPool();
-    }
-
-    /**
-     * When File-Engine is starting, the function will be called.
-     * You can initialize your plugin here
-     */
-    @Override
-    @Deprecated
-    public void loadPlugin() {
-
     }
 
     private void checkSuccess(boolean b) {
@@ -340,5 +285,115 @@ public class PluginMain extends Plugin {
                 e.printStackTrace();
             }
         });
+    }
+
+
+    /**
+     * Do Not Remove, this is used for File-Engine to get message from the plugin.
+     * You can show message using "displayMessage(String caption, String message)"
+     *
+     * @return String[2], the first string is caption, the second string is message.
+     * @see #displayMessage(String, String)
+     */
+    @SuppressWarnings("unused")
+    public String[] getMessage() {
+        return _getMessage();
+    }
+
+    /**
+     * Do Not Remove, this is used for File-Engine to get results from the plugin
+     * You can add result using "addToResultQueue(String result)".
+     *
+     * @return result
+     * @see #addToResultQueue(String)
+     */
+    @SuppressWarnings("unused")
+    public String pollFromResultQueue() {
+        return _pollFromResultQueue();
+    }
+
+    /**
+     * Do Not Remove, this is used for File-Engine to check the API version.
+     *
+     * @return Api version
+     */
+    @SuppressWarnings("unused")
+    public int getApiVersion() {
+        return _getApiVersion();
+    }
+
+    /**
+     * Do Not Remove, this is used for File-Engine to clear results to prepare for the next time.
+     *
+     * @see #addToResultQueue(String)
+     * @see #pollFromResultQueue()
+     */
+    @SuppressWarnings("unused")
+    public void clearResultQueue() {
+        _clearResultQueue();
+    }
+
+    /**
+     * Do Not Remove, this is used for File-Engine to poll the event that send from the plugin.
+     * The object array contains two parts.
+     * object[0] contains the fully-qualified name of class.
+     * object[1] contains the params that the event need to build an instance.
+     * To send an event to File-Engine
+     *
+     * @return FileEngine.Web.Plugin.Event
+     * @see #sendEventToFileEngine(String, Object...)
+     * @see #sendEventToFileEngine(Event)
+     */
+    @SuppressWarnings("unused")
+    public Object[] pollFromEventQueue() {
+        return _pollFromEventQueue();
+    }
+
+    /**
+     * Do Not Remove, this is used for File-Engine to replace the handler which the plugin is registered.
+     * The object array contains two parts.
+     * object[0] contains the fully-qualified name of class.
+     * object[1] contains a consumer to hande the event.
+     *
+     * @return FileEngine.Web.Plugin.Event handler
+     * @see #registerFileEngineEventHandler(String, BiConsumer)
+     */
+    @SuppressWarnings("unused")
+    public Object[] pollFromEventHandlerQueue() {
+        return _pollEventHandlerQueue();
+    }
+
+    /**
+     * Do Not Remove, this is used for File-Engine to restore the handler which the plugin is registered.
+     *
+     * @return FileEngine.Web.Plugin.Event class fully-qualified name
+     * @see #restoreFileEngineEventHandler(String)
+     */
+    @SuppressWarnings("unused")
+    public String restoreFileEngineEventHandler() {
+        return _pollFromRestoreQueue();
+    }
+
+    /**
+     * Do Not Remove, this is used for File-Engine to add an event listener for this plugin.
+     * The object array contains two parts.
+     * object[0] contains the fully-qualified name of class.
+     * object[1] contains a consumer to execute when the event is finished.
+     *
+     * @return FileEngine.Web.Plugin.Event listener
+     */
+    @SuppressWarnings("unused")
+    public Object[] pollFromEventListenerQueue() {
+        return _pollFromEventListenerQueue();
+    }
+
+    /**
+     * Do Not Remove, this is used to remove a plugin registered event listener.
+     *
+     * @return FileEngine.Web.Plugin.Event class fully-qualified name
+     */
+    @SuppressWarnings("unused")
+    public String[] removeFileEngineEventListener() {
+        return _pollFromRemoveListenerQueue();
     }
 }
