@@ -45,6 +45,11 @@ public class PluginMain extends Plugin {
     public void eventProcessed(Class<?> c, Object eventInstance) {
     }
 
+    @Override
+    public void openSettings() {
+        SettingsFrame.getInstance().showWindow();
+    }
+
     /**
      * When the search bar textChanged, this function will be called.
      * @param text
